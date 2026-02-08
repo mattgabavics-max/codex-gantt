@@ -126,6 +126,21 @@ beforeEach(() => {
 });
 
 describe("projects integration", () => {
+  it("rejects unauthenticated access", async () => {
+    const app = createApp();
+    await request(app).get("/api/projects").expect(401);
+  });
+
+  it("rejects invalid pagination parameters", async () => {
+    const app = createApp();
+    const res = await request(app)
+      .get("/api/projects?page=0&pageSize=200")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(400);
+
+    expect(res.body.error).toBe("Validation failed");
+  });
+
   it("creates and lists projects with pagination", async () => {
     const app = createApp();
     await request(app)
@@ -180,6 +195,22 @@ describe("projects integration", () => {
 
     expect(res.body.total).toBe(0);
   });
+
+  it("returns 404 when accessing another user's project", async () => {
+    const app = createApp();
+    const created = await request(app)
+      .post("/api/projects")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ name: "Owner Project" })
+      .expect(201);
+
+    const otherToken = jwt.sign({ id: "user-2", email: "other@example.com" }, "test-secret");
+
+    await request(app)
+      .get(`/api/projects/${created.body.project.id}`)
+      .set("Authorization", `Bearer ${otherToken}`)
+      .expect(404);
+  });
 });
 
 describe("project versions integration", () => {
@@ -206,4 +237,3 @@ describe("project versions integration", () => {
     expect(res.body.data[0].versionNumber).toBe(1);
   });
 });
-

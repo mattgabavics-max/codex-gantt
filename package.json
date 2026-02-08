@@ -15,7 +15,8 @@
     "start": "npm --workspace server run start",
     "test": "npm --workspace shared run build && npm --workspace client run test && npm --workspace server run test",
     "test:coverage": "npm --workspace shared run build && npm --workspace client run test:coverage && npm --workspace server run test:coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:ci": "npm run test:coverage && npm run test:e2e"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",

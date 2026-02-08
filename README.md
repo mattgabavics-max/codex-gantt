@@ -36,6 +36,7 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
 - `npm run test` runs the full suite.
 - `npm run test:coverage` runs unit/integration tests with coverage.
 - `npm run test:e2e` runs Playwright end-to-end tests.
+- `npm run test:ci` runs coverage and E2E tests (CI parity).
 
 ## Deployment
 
