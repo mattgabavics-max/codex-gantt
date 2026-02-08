@@ -52,4 +52,14 @@ describe("VersionHistory", () => {
     fireEvent.click(checkbox);
     expect(checkbox).not.toBeChecked();
   });
+
+  it("shows empty state when no versions", () => {
+    render(
+      <VersionStoreProvider initialVersions={[]}>
+        <VersionHistory isOpen onClose={vi.fn()} currentTasks={[]} />
+      </VersionStoreProvider>
+    );
+
+    expect(screen.getByText("No versions yet. Create your first snapshot.")).toBeInTheDocument();
+  });
 });

@@ -40,4 +40,21 @@ describe("GanttChart", () => {
 
     expect(onTaskUpdate).not.toHaveBeenCalled();
   });
+
+  it("announces selection on arrow keys", () => {
+    const onSelectTask = vi.fn();
+    render(
+      <GanttChart
+        tasks={tasks}
+        timeScale="day"
+        onTaskUpdate={vi.fn()}
+        onSelectTask={onSelectTask}
+        selectedTaskId={tasks[0].id}
+      />
+    );
+
+    const canvas = screen.getByTestId("gantt-canvas");
+    fireEvent.keyDown(canvas, { key: "ArrowDown" });
+    expect(onSelectTask).toHaveBeenCalled();
+  });
 });

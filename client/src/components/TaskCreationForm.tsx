@@ -57,6 +57,7 @@ export default function TaskCreationForm({
           value={values.name}
           onChange={(event) => update("name", event.target.value)}
           disabled={disabled}
+          aria-label="Task name"
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               handleSubmit();
@@ -78,6 +79,7 @@ export default function TaskCreationForm({
           value={values.startDate}
           onChange={(event) => update("startDate", event.target.value)}
           disabled={disabled}
+          aria-label="Start date"
         />
       </div>
       <div className="space-y-1">
@@ -94,6 +96,7 @@ export default function TaskCreationForm({
           value={values.endDate}
           onChange={(event) => update("endDate", event.target.value)}
           disabled={disabled}
+          aria-label="End date"
         />
       </div>
       <div className="space-y-1">
@@ -110,12 +113,14 @@ export default function TaskCreationForm({
           value={values.color}
           onChange={(event) => update("color", event.target.value)}
           disabled={disabled}
+          aria-label="Task color"
         />
       </div>
       <button
-        className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white shadow-sm"
+        className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
         type="submit"
         disabled={disabled}
+        aria-label="Add task"
       >
         Add Task
       </button>

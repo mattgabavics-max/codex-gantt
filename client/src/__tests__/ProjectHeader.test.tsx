@@ -39,4 +39,20 @@ describe("ProjectHeader", () => {
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "month" } });
     expect(onTimeScaleChange).toHaveBeenCalledWith("month");
   });
+
+  it("shows dirty state label", () => {
+    render(
+      <ProjectHeader
+        name="Launch Plan"
+        timeScale="week"
+        dirty
+        onRename={vi.fn()}
+        onTimeScaleChange={vi.fn()}
+        onShare={vi.fn()}
+        onOpenVersions={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
+  });
 });

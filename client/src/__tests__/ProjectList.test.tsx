@@ -55,4 +55,29 @@ describe("ProjectList", () => {
     fireEvent.click(screen.getByText("Create New Project"));
     expect(onCreateProject).toHaveBeenCalled();
   });
+
+  it("shows empty state when no projects", () => {
+    render(
+      <ProjectList
+        projects={[]}
+        onCreateProject={vi.fn()}
+        onSelectProject={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("No projects yet")).toBeInTheDocument();
+  });
+
+  it("renders loading skeletons", () => {
+    const { container } = render(
+      <ProjectList
+        projects={[]}
+        isLoading
+        onCreateProject={vi.fn()}
+        onSelectProject={vi.fn()}
+      />
+    );
+
+    expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
+  });
 });

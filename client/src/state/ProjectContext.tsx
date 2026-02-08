@@ -5,6 +5,7 @@ import { useAutoSave } from "../hooks/useAutoSave";
 type ProjectState = {
   project: Project | null;
   tasks: Task[];
+  selectedTaskId?: string;
   undoStack: Task[][];
   redoStack: Task[][];
 };
@@ -13,6 +14,7 @@ type ProjectAction =
   | { type: "SET_PROJECT"; payload: Project | null }
   | { type: "SET_TASKS"; payload: Task[] }
   | { type: "APPLY_TASKS"; payload: Task[] }
+  | { type: "SET_SELECTED_TASK"; payload?: string }
   | { type: "UPDATE_TASK"; payload: { id: string; updates: Partial<Task> } }
   | { type: "ADD_TASK"; payload: Task }
   | { type: "REMOVE_TASK"; payload: string }
@@ -36,6 +38,7 @@ type ProjectContextValue = {
   undo: () => void;
   redo: () => void;
   clearError: () => void;
+  selectTask: (taskId?: string) => void;
 };
 
 const ProjectContext = createContext<ProjectContextValue | undefined>(undefined);
@@ -58,6 +61,8 @@ function reducer(state: ProjectState, action: ProjectAction): ProjectState {
         undoStack: [],
         redoStack: []
       };
+    case "SET_SELECTED_TASK":
+      return { ...state, selectedTaskId: action.payload };
     case "APPLY_TASKS":
       return {
         ...state,
@@ -129,6 +134,51 @@ export function ProjectProvider({
     return () => window.removeEventListener("beforeunload", handler);
   }, [autoSaveState.dirty]);
 
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      const meta = event.metaKey || event.ctrlKey;
+      if (meta && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        enqueue(state.tasks);
+        return;
+      }
+      if (meta && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        if (event.shiftKey) {
+          if (state.redoStack.length > 0) {
+            const nextTasks = state.redoStack[0];
+            dispatch({ type: "REDO" });
+            enqueue(nextTasks);
+          }
+        } else {
+          if (state.undoStack.length > 0) {
+            const nextTasks = state.undoStack[0];
+            dispatch({ type: "UNDO" });
+            enqueue(nextTasks);
+          }
+        }
+        return;
+      }
+      if (event.key === "Delete" && state.selectedTaskId) {
+        const nextTasks = state.tasks.filter((task) => task.id !== state.selectedTaskId);
+        dispatch({ type: "APPLY_TASKS", payload: nextTasks });
+        enqueue(nextTasks);
+      }
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        const index = state.tasks.findIndex((task) => task.id === state.selectedTaskId);
+        const nextIndex =
+          event.key === "ArrowDown"
+            ? Math.min(index + 1, state.tasks.length - 1)
+            : Math.max(index - 1, 0);
+        if (state.tasks[nextIndex]) {
+          dispatch({ type: "SET_SELECTED_TASK", payload: state.tasks[nextIndex].id });
+        }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [state.tasks, state.selectedTaskId, state.undoStack, state.redoStack, enqueue]);
+
   const value = useMemo<ProjectContextValue>(
     () => ({
       state,
@@ -141,6 +191,7 @@ export function ProjectProvider({
       setTasks: (tasks) => {
         dispatch({ type: "SET_TASKS", payload: tasks });
       },
+      selectTask: (taskId) => dispatch({ type: "SET_SELECTED_TASK", payload: taskId }),
       updateTask: (id, updates) => {
         const nextTasks = state.tasks.map((task) =>
           task.id === id ? { ...task, ...updates } : task

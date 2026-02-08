@@ -24,7 +24,7 @@ export default function Toolbar({
         <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1">
           <button
             type="button"
-            className="rounded-full px-2 py-1 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+            className="rounded-full px-2 py-1 text-sm font-semibold text-slate-600 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             onClick={onZoomOut}
             aria-label="Zoom out"
           >
@@ -33,7 +33,7 @@ export default function Toolbar({
           <span className="text-xs font-semibold text-slate-600">{zoomLevel}%</span>
           <button
             type="button"
-            className="rounded-full px-2 py-1 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+            className="rounded-full px-2 py-1 text-sm font-semibold text-slate-600 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             onClick={onZoomIn}
             aria-label="Zoom in"
           >
@@ -49,6 +49,7 @@ export default function Toolbar({
             className="h-4 w-4 rounded border-slate-300 text-ink"
             checked={showWeekends}
             onChange={onToggleWeekends}
+            aria-label="Toggle weekends"
           />
           Show weekends
         </label>
@@ -56,14 +57,14 @@ export default function Toolbar({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+            className="rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             onClick={() => onExport("png")}
           >
             Export PNG
           </button>
           <button
             type="button"
-            className="rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+            className="rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             onClick={() => onExport("pdf")}
           >
             Export PDF

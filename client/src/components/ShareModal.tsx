@@ -61,7 +61,12 @@ export default function ShareModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Share project"
+    >
       <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl">
         <div className="flex items-start justify-between">
           <div>
@@ -73,9 +78,10 @@ export default function ShareModal({
             </h2>
           </div>
           <button
-            className="rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-600"
+            className="rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             onClick={onClose}
             type="button"
+            aria-label="Close share modal"
           >
             Close
           </button>
@@ -95,6 +101,7 @@ export default function ShareModal({
                   className={`flex-1 rounded-full px-3 py-2 text-xs font-semibold ${
                     accessType === value ? "bg-ink text-white" : "text-slate-500"
                   }`}
+                  aria-label={`Set access to ${value}`}
                 >
                   {value === "readonly" ? "Readonly" : "Editable"}
                 </button>
@@ -112,6 +119,7 @@ export default function ShareModal({
                 const value = event.target.value;
                 setExpiresIn(value === "never" ? undefined : Number(value));
               }}
+              aria-label="Expiration"
             >
               {expiryOptions.map((option) => (
                 <option key={option.label} value={option.value ?? "never"}>
@@ -122,10 +130,11 @@ export default function ShareModal({
           </div>
           <div className="flex items-end">
             <button
-              className="w-full rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white"
+              className="w-full rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
               onClick={handleCreate}
               disabled={busy}
               type="button"
+              aria-label="Generate share link"
             >
               {busy ? "Generating..." : "Generate link"}
             </button>
@@ -160,15 +169,17 @@ export default function ShareModal({
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600"
+                    className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                     onClick={() => handleCopy(link.token)}
+                    aria-label="Copy share link"
                   >
                     Copy link
                   </button>
                   <button
                     type="button"
-                    className="rounded-full border border-rose-200 px-3 py-1 text-xs text-rose-600"
+                    className="rounded-full border border-rose-200 px-3 py-1 text-xs text-rose-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
                     onClick={() => onRevokeLink(link.id)}
+                    aria-label="Revoke share link"
                   >
                     Revoke
                   </button>
