@@ -136,3 +136,18 @@ export type BulkUpdateTasksRequestBody = {
 export type BulkUpdateTasksResponse = {
   tasks: Task[];
 };
+
+export type CreateShareLinkRequestBody = {
+  accessType: ShareAccessType;
+  expiresIn?: number;
+};
+
+export type ShareLinkResponse = {
+  link: ShareLink;
+};
+
+export type ShareProjectResponse = {
+  accessType: ShareAccessType;
+  project: Project;
+  tasks: Task[];
+};
