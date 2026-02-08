@@ -34,6 +34,8 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
 - `npm --workspace server run test` runs API tests.
 - `npm --workspace client run test` runs frontend tests.
 - `npm run test` runs the full suite.
+- `npm run test:coverage` runs unit/integration tests with coverage.
+- `npm run test:e2e` runs Playwright end-to-end tests.
 
 ## Deployment
 

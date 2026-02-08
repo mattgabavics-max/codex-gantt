@@ -17,6 +17,9 @@ dist/
 build/
 .next/
 out/
+coverage/
+playwright-report/
+test-results/
 
 # IDE
 .vscode/
