@@ -81,6 +81,9 @@ function resolveDayWidth(scale: TimeScale, containerWidth: number, days: number)
   return Math.min(14, Math.max(min, width));
 }
 
+/**
+ * Generate header cells and day width for the selected time scale.
+ */
 export function generateTimeHeaders(
   startDate: Date,
   endDate: Date,
@@ -145,6 +148,9 @@ export function generateTimeHeaders(
   return { headers, dayWidth };
 }
 
+/**
+ * Translate task dates into pixel offsets within the visible range.
+ */
 export function calculateTaskPosition(
   task: Task,
   scale: TimeScale,
@@ -161,6 +167,9 @@ export function calculateTaskPosition(
   return { left, width };
 }
 
+/**
+ * Snap a date to the nearest boundary for the given scale.
+ */
 export function snapToGrid(date: Date, scale: TimeScale) {
   const day = startOfDay(date);
   if (scale === "day") return day;
@@ -180,6 +189,9 @@ export function snapToGrid(date: Date, scale: TimeScale) {
   );
 }
 
+/**
+ * Compute a default date range centered around a given date.
+ */
 export function getVisibleDateRange(scale: TimeScale, centerDate: Date) {
   const center = startOfDay(centerDate);
   if (scale === "day") {

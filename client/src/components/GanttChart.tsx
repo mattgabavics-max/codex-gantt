@@ -66,6 +66,9 @@ function isWeekend(date: Date) {
   return day === 0 || day === 6;
 }
 
+/**
+ * Interactive Gantt chart with drag/resize and accessibility support.
+ */
 export default function GanttChart({
   tasks,
   timeScale,

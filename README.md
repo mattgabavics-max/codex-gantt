@@ -72,3 +72,9 @@ Secrets required:
 - Client Sentry: `client/src/monitoring/sentry.ts`
 - Server Sentry: `server/src/monitoring/sentry.ts`
 - Set `VITE_SENTRY_DSN` and `SENTRY_DSN` to enable.
+
+## Documentation
+- `USER_MANUAL.md`
+- `SUPPORT_MANUAL.md`
+- `TECHNICAL_DESIGN.md`
+- `API_REFERENCE.md`

@@ -14,6 +14,9 @@ export type TaskCreationFormProps = {
 
 const defaultColor = "#5c7cfa";
 
+/**
+ * Inline task creation form with keyboard shortcut handling.
+ */
 export default function TaskCreationForm({
   onCreate,
   disabled = false

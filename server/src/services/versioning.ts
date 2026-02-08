@@ -7,6 +7,9 @@ type CreateVersionInput = {
   snapshotData: unknown;
 };
 
+/**
+ * Create the next project version with retry on unique constraint conflicts.
+ */
 export async function createNextProjectVersion({
   projectId,
   userId,

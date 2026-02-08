@@ -15,6 +15,9 @@ export type AutoSaveOptions<T> = {
   onSave: (payload: T) => Promise<void>;
 };
 
+/**
+ * Debounced autosave hook with retry and conflict detection.
+ */
 export function useAutoSave<T>({
   debounceMs = 500,
   maxRetries = 2,

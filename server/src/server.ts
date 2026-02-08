@@ -10,6 +10,9 @@ import { requireAuth } from "./middleware/auth";
 import { errorHandler } from "./middleware/error-handler";
 import { initSentry } from "./monitoring/sentry";
 
+/**
+ * Configure and return the Express application.
+ */
 export function createApp() {
   const app = express();
 

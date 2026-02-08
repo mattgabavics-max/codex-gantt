@@ -22,6 +22,9 @@ const scales: Array<{ value: TimeScale; label: string }> = [
   { value: "quarter", label: "Quarter" }
 ];
 
+/**
+ * Project header with editable name, time scale selector, and actions.
+ */
 export default function ProjectHeader({
   name,
   timeScale,

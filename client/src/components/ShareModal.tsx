@@ -24,6 +24,9 @@ function formatExpiry(date?: string | null) {
   return new Date(date).toLocaleString();
 }
 
+/**
+ * Modal UI for creating, listing, copying, and revoking share links.
+ */
 export default function ShareModal({
   isOpen,
   projectId,
