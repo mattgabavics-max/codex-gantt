@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
-import type { Task } from "@codex/shared";
+import { Route, Routes } from "react-router-dom";
+import type { ShareLink, Task } from "@codex/shared";
+import SharedProjectView from "./components/SharedProjectView";
+import ShareModal from "./components/ShareModal";
+import { api } from "./api/api";
 
 const apiBase = import.meta.env.VITE_API_URL ?? "";
 
-export default function App() {
+function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [shareLinks, setShareLinks] = useState<ShareLink[]>([]);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareBusy, setShareBusy] = useState(false);
 
   useEffect(() => {
     fetch(`${apiBase}/api/tasks`)
@@ -12,6 +19,28 @@ export default function App() {
       .then((data: Task[]) => setTasks(data))
       .catch(() => setTasks([]));
   }, []);
+
+  const projectId = tasks[0]?.projectId;
+
+  async function handleCreateLink(payload: {
+    accessType: "readonly" | "editable";
+    expiresIn?: number;
+  }) {
+    if (!projectId) return;
+    setShareBusy(true);
+    const res = await api.post<{ link: ShareLink }>(
+      `/api/projects/${projectId}/share`,
+      payload
+    );
+    setShareLinks((prev) => [res.data.link, ...prev]);
+    setShareBusy(false);
+  }
+
+  async function handleRevokeLink(linkId: string) {
+    if (!projectId) return;
+    await api.delete(`/api/projects/${projectId}/share/${linkId}`);
+    setShareLinks((prev) => prev.filter((link) => link.id !== linkId));
+  }
 
   return (
     <div className="min-h-screen px-6 py-12 text-ink">
@@ -27,6 +56,16 @@ export default function App() {
             The frontend is wired to the API. Replace the placeholder data with
             your Prisma-backed tasks when you are ready.
           </p>
+          <div className="pt-2">
+            <button
+              className="rounded-full border border-slate-200 px-4 py-2 text-sm text-slate-600"
+              type="button"
+              onClick={() => setShareOpen(true)}
+              disabled={!projectId || shareBusy}
+            >
+              Share Project
+            </button>
+          </div>
         </header>
 
         <section className="rounded-3xl bg-white/90 p-8 shadow-xl">
@@ -59,6 +98,23 @@ export default function App() {
           </div>
         </section>
       </div>
+      <ShareModal
+        isOpen={shareOpen}
+        projectId={projectId ?? "unknown"}
+        links={shareLinks}
+        onClose={() => setShareOpen(false)}
+        onCreateLink={handleCreateLink}
+        onRevokeLink={handleRevokeLink}
+      />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/share/:token" element={<SharedProjectView />} />
+    </Routes>
   );
 }
