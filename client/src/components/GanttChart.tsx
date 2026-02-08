@@ -1,5 +1,10 @@
 import { useMemo, useRef, useState } from "react";
 import type { Task } from "@codex/shared";
+import {
+  calculateTaskPosition,
+  generateTimeHeaders,
+  getVisibleDateRange
+} from "../utils/timeScaleUtils";
 
 export type TimeScale = "day" | "week" | "sprint" | "month" | "quarter";
 
@@ -24,8 +29,6 @@ export type GanttChartProps = {
   readOnly?: boolean;
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 function toDate(value: string) {
   return new Date(`${value}T00:00:00`);
 }
@@ -40,20 +43,8 @@ function addDays(date: Date, days: number) {
   return next;
 }
 
-function addMonths(date: Date, months: number) {
-  const next = new Date(date);
-  next.setMonth(next.getMonth() + months);
-  return next;
-}
-
 function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function daysBetween(start: Date, end: Date) {
-  const startDay = startOfDay(start).getTime();
-  const endDay = startOfDay(end).getTime();
-  return Math.max(0, Math.round((endDay - startDay) / DAY_MS));
 }
 
 function clampDateRange(start: Date, end: Date) {
@@ -69,87 +60,6 @@ function isWeekend(date: Date) {
   return day === 0 || day === 6;
 }
 
-function formatHeader(date: Date, scale: TimeScale) {
-  if (scale === "day") {
-    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  }
-  if (scale === "week" || scale === "sprint") {
-    const end = addDays(date, scale === "week" ? 6 : 13);
-    return `${date.toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric"
-    })}–${end.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
-  }
-  if (scale === "month") {
-    return date.toLocaleDateString(undefined, { month: "short", year: "numeric" });
-  }
-  return `${date.toLocaleDateString(undefined, { month: "short" })}–${addMonths(
-    date,
-    2
-  ).toLocaleDateString(undefined, { month: "short", year: "numeric" })}`;
-}
-
-function buildColumns(rangeStart: Date, rangeEnd: Date, scale: TimeScale, dayWidth: number) {
-  const columns: Array<{ label: string; start: Date; end: Date; width: number }> = [];
-  let cursor = new Date(rangeStart);
-
-  while (cursor < rangeEnd) {
-    if (scale === "day") {
-      const next = addDays(cursor, 1);
-      columns.push({ label: formatHeader(cursor, scale), start: cursor, end: next, width: dayWidth });
-      cursor = next;
-      continue;
-    }
-    if (scale === "week" || scale === "sprint") {
-      const days = scale === "week" ? 7 : 14;
-      const next = addDays(cursor, days);
-      columns.push({
-        label: formatHeader(cursor, scale),
-        start: cursor,
-        end: next,
-        width: dayWidth * days
-      });
-      cursor = next;
-      continue;
-    }
-    if (scale === "month") {
-      const next = addMonths(cursor, 1);
-      const days = daysBetween(cursor, next);
-      columns.push({
-        label: formatHeader(cursor, scale),
-        start: cursor,
-        end: next,
-        width: dayWidth * days
-      });
-      cursor = next;
-      continue;
-    }
-    const next = addMonths(cursor, 3);
-    const days = daysBetween(cursor, next);
-    columns.push({
-      label: formatHeader(cursor, scale),
-      start: cursor,
-      end: next,
-      width: dayWidth * days
-    });
-    cursor = next;
-  }
-
-  return columns;
-}
-
-function deriveRange(tasks: Task[]) {
-  if (tasks.length === 0) {
-    const today = startOfDay(new Date());
-    return { start: addDays(today, -7), end: addDays(today, 21) };
-  }
-  const starts = tasks.map((task) => toDate(task.startDate));
-  const ends = tasks.map((task) => toDate(task.endDate));
-  const min = new Date(Math.min(...starts.map((d) => d.getTime())));
-  const max = new Date(Math.max(...ends.map((d) => d.getTime())));
-  return { start: addDays(min, -7), end: addDays(max, 14) };
-}
-
 export default function GanttChart({
   tasks,
   timeScale,
@@ -159,25 +69,29 @@ export default function GanttChart({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [dragState, setDragState] = useState<DragState>(null);
 
-  const dayWidth = useMemo(() => {
-    if (timeScale === "day") return 28;
-    if (timeScale === "week") return 20;
-    if (timeScale === "sprint") return 18;
-    if (timeScale === "month") return 12;
-    return 10;
-  }, [timeScale]);
+  const containerWidth = containerRef.current?.clientWidth ?? 1200;
 
-  const { rangeStart, rangeEnd, columns, totalWidth } = useMemo(() => {
-    const { start, end } = deriveRange(tasks);
-    const cols = buildColumns(start, end, timeScale, dayWidth);
-    const width = cols.reduce((sum, col) => sum + col.width, 0);
-    return { rangeStart: start, rangeEnd: end, columns: cols, totalWidth: width };
-  }, [tasks, timeScale, dayWidth]);
+  const { rangeStart, rangeEnd, columns, totalWidth, dayWidth } = useMemo(() => {
+    const center = new Date();
+    const baseRange = getVisibleDateRange(timeScale, center);
+    const starts = tasks.map((task) => toDate(task.startDate));
+    const ends = tasks.map((task) => toDate(task.endDate));
+    const min = starts.length ? new Date(Math.min(...starts.map((d) => d.getTime()))) : baseRange.start;
+    const max = ends.length ? new Date(Math.max(...ends.map((d) => d.getTime()))) : baseRange.end;
+    const start = min < baseRange.start ? min : baseRange.start;
+    const end = max > baseRange.end ? max : baseRange.end;
+    const { headers, dayWidth } = generateTimeHeaders(start, end, timeScale, containerWidth);
+    const width = headers.reduce((sum, col) => sum + col.width, 0);
+    return { rangeStart: start, rangeEnd: end, columns: headers, totalWidth: width, dayWidth };
+  }, [tasks, timeScale, containerWidth]);
 
   const todayPosition = useMemo(() => {
     const today = startOfDay(new Date());
     if (today < rangeStart || today > rangeEnd) return null;
-    const offsetDays = daysBetween(rangeStart, today);
+    const offsetDays = Math.max(
+      0,
+      Math.round((today.getTime() - rangeStart.getTime()) / (24 * 60 * 60 * 1000))
+    );
     return offsetDays * dayWidth;
   }, [rangeStart, rangeEnd, dayWidth]);
 
@@ -275,11 +189,14 @@ export default function GanttChart({
 
           <div className="relative flex flex-col gap-4 px-4 py-6" style={{ width: totalWidth }}>
             {tasks.map((task) => {
-              const start = toDate(task.startDate);
-              const end = toDate(task.endDate);
-              const offset = daysBetween(rangeStart, start) * dayWidth;
-              const durationDays = Math.max(1, daysBetween(start, end));
-              const width = durationDays * dayWidth;
+              const { left: offset, width } = calculateTaskPosition(
+                task,
+                timeScale,
+                containerWidth,
+                rangeStart,
+                rangeEnd
+              );
+              const durationDays = Math.max(1, Math.round(width / dayWidth));
               const isMilestone = durationDays === 1;
 
               return (
