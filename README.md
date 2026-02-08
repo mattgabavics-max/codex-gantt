@@ -78,3 +78,6 @@ Secrets required:
 - `SUPPORT_MANUAL.md`
 - `TECHNICAL_DESIGN.md`
 - `API_REFERENCE.md`
+- `ONBOARDING.md`
+- `RUNBOOKS.md`
+- `ADR/README.md`
