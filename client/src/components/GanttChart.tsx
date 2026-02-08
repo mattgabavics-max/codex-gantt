@@ -36,7 +36,7 @@ export type GanttChartProps = {
 };
 
 function toDate(value: string) {
-  return new Date(`${value}T00:00:00`);
+  return new Date(`${value}T00:00:00Z`);
 }
 
 function formatISO(date: Date) {
@@ -45,12 +45,12 @@ function formatISO(date: Date) {
 
 function addDays(date: Date, days: number) {
   const next = new Date(date);
-  next.setDate(next.getDate() + days);
+  next.setUTCDate(next.getUTCDate() + days);
   return next;
 }
 
 function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
 
 function clampDateRange(start: Date, end: Date) {
@@ -62,7 +62,7 @@ function clampDateRange(start: Date, end: Date) {
 }
 
 function isWeekend(date: Date) {
-  const day = date.getDay();
+  const day = date.getUTCDay();
   return day === 0 || day === 6;
 }
 

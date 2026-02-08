@@ -3,6 +3,7 @@ import { body, param, query } from "express-validator";
 import prisma from "../db";
 import { requireAuth } from "../middleware/auth";
 import { validateRequest } from "../middleware/validate-request";
+import { createNextProjectVersion } from "../services/versioning";
 import type {
   BulkUpdateTasksRequestBody,
   BulkUpdateTasksResponse,
@@ -16,11 +17,15 @@ const router = Router();
 const projectIdParam = param("projectId").isUUID().withMessage("Invalid project id");
 const taskIdParam = param("id").isUUID().withMessage("Invalid task id");
 
+function parseDate(value: string) {
+  return new Date(`${value}T00:00:00Z`);
+}
+
 const dateRangeValidator = body(["startDate", "endDate"])
   .optional()
   .custom((_, { req }) => {
-    const start = req.body.startDate ? new Date(req.body.startDate) : undefined;
-    const end = req.body.endDate ? new Date(req.body.endDate) : undefined;
+    const start = req.body.startDate ? parseDate(req.body.startDate) : undefined;
+    const end = req.body.endDate ? parseDate(req.body.endDate) : undefined;
     if (start && end && start >= end) {
       throw new Error("startDate must be before endDate");
     }
@@ -43,19 +48,10 @@ async function createVersionIfRequested(
   if (!snapshotRequested) {
     return;
   }
-
-  const latest = await prisma.projectVersion.findFirst({
-    where: { projectId },
-    orderBy: { versionNumber: "desc" }
-  });
-
-  await prisma.projectVersion.create({
-    data: {
-      projectId,
-      versionNumber: (latest?.versionNumber ?? 0) + 1,
-      snapshotData: snapshotData ?? { reason: "task-update" },
-      createdBy: userId
-    }
+  await createNextProjectVersion({
+    projectId,
+    userId,
+    snapshotData: snapshotData ?? { reason: "task-update" }
   });
 }
 
@@ -94,8 +90,8 @@ router.post(
         data: {
           projectId: project.id,
           name,
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
+          startDate: parseDate(startDate),
+          endDate: parseDate(endDate),
           color: color ?? null,
           position
         }
@@ -161,8 +157,8 @@ router.put(
         where: { id: task.id },
         data: {
           name: name ?? task.name,
-          startDate: startDate ? new Date(startDate) : task.startDate,
-          endDate: endDate ? new Date(endDate) : task.endDate,
+          startDate: startDate ? parseDate(startDate) : task.startDate,
+          endDate: endDate ? parseDate(endDate) : task.endDate,
           color: color ?? task.color,
           position: typeof position === "number" ? position : task.position
         }
@@ -278,13 +274,13 @@ router.patch(
     body("tasks").isArray({ min: 1 }).withMessage("tasks must be an array"),
     body("tasks").custom((tasks) => {
       for (const task of tasks as Array<Record<string, unknown>>) {
-        if (task.startDate && task.endDate) {
-          const start = new Date(String(task.startDate));
-          const end = new Date(String(task.endDate));
-          if (start >= end) {
-            throw new Error("startDate must be before endDate");
+          if (task.startDate && task.endDate) {
+            const start = parseDate(String(task.startDate));
+            const end = parseDate(String(task.endDate));
+            if (start >= end) {
+              throw new Error("startDate must be before endDate");
+            }
           }
-        }
       }
       return true;
     }),
@@ -328,8 +324,8 @@ router.patch(
             where: { id: taskUpdate.id },
             data: {
               name: taskUpdate.name,
-              startDate: taskUpdate.startDate ? new Date(taskUpdate.startDate) : undefined,
-              endDate: taskUpdate.endDate ? new Date(taskUpdate.endDate) : undefined,
+              startDate: taskUpdate.startDate ? parseDate(taskUpdate.startDate) : undefined,
+              endDate: taskUpdate.endDate ? parseDate(taskUpdate.endDate) : undefined,
               color: taskUpdate.color ?? undefined,
               position:
                 typeof taskUpdate.position === "number" ? taskUpdate.position : undefined

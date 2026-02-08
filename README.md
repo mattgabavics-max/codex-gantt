@@ -11,7 +11,7 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
    - `npm install`
 2. Configure environment variables.
    - Copy `server/.env.example` to `server/.env` and update `DATABASE_URL`.
-   - Copy `client/.env.example` to `client/.env` if your API is not on `http://localhost:4000`.
+   - Copy `client/.env.example` to `client/.env` if your API is not on `http://localhost:3001`.
 3. Initialize Prisma.
    - `npm --workspace server run prisma:generate`
    - `npm --workspace server run prisma:migrate -- --name init`
@@ -43,7 +43,7 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
    - Build Command: `pnpm --filter client install --frozen-lockfile=false && pnpm --filter client build`
    - Output Directory: `client/dist`
 3. Environment variables:
-   - `VITE_API_URL`
+- `VITE_API_BASE_URL`
    - `VITE_SENTRY_DSN` (optional)
 4. SPA routing is handled via `vercel.json`.
 

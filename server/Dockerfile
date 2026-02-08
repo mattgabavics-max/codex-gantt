@@ -13,8 +13,8 @@ RUN pnpm --filter @codex/shared build \
   && pnpm --filter server build
 
 ENV NODE_ENV=production
-ENV PORT=4000
+ENV PORT=3001
 
-EXPOSE 4000
+EXPOSE 3001
 
 CMD ["sh", "-c", "pnpm --filter server prisma:generate && pnpm --filter server prisma:deploy && node server/dist/index.js"]

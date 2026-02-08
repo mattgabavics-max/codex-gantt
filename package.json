@@ -7,6 +7,7 @@
     "shared"
   ],
   "scripts": {
+    "predev": "npm --workspace server run prisma:generate",
     "dev": "concurrently \"npm --workspace client run dev\" \"npm --workspace server run dev\"",
     "dev:client": "npm --workspace client run dev",
     "dev:server": "npm --workspace server run dev",

@@ -3,6 +3,7 @@ import { body, param, query } from "express-validator";
 import prisma from "../db";
 import { requireAuth } from "../middleware/auth";
 import { validateRequest } from "../middleware/validate-request";
+import { createNextProjectVersion } from "../services/versioning";
 import type {
   CreateProjectRequestBody,
   CreateProjectVersionRequestBody,
@@ -300,19 +301,10 @@ router.post(
       }
 
       const { snapshotData } = req.body as CreateProjectVersionRequestBody;
-      const latest = await prisma.projectVersion.findFirst({
-        where: { projectId: project.id },
-        orderBy: { versionNumber: "desc" }
-      });
-
-      const versionNumber = (latest?.versionNumber ?? 0) + 1;
-      const version = await prisma.projectVersion.create({
-        data: {
-          projectId: project.id,
-          versionNumber,
-          snapshotData,
-          createdBy: req.user!.id
-        }
+      const version = await createNextProjectVersion({
+        projectId: project.id,
+        userId: req.user!.id,
+        snapshotData
       });
 
       const payload: ProjectVersionResponse = {

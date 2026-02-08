@@ -6,6 +6,7 @@ import authRouter from "./routes/auth";
 import projectsRouter from "./routes/projects";
 import tasksRouter from "./routes/tasks";
 import shareRouter from "./routes/share";
+import { requireAuth } from "./middleware/auth";
 import { errorHandler } from "./middleware/error-handler";
 import { initSentry } from "./monitoring/sentry";
 
@@ -45,9 +46,10 @@ export function createApp() {
     res.json({ status: "ok" });
   });
 
-  app.get("/api/tasks", async (_req, res, next) => {
+  app.get("/api/tasks", requireAuth, async (req, res, next) => {
     try {
       const tasks = await prisma.task.findMany({
+        where: { project: { ownerId: req.user!.id, deletedAt: null } },
         orderBy: { startDate: "asc" }
       });
       const payload: Task[] = tasks.map((task) => ({
