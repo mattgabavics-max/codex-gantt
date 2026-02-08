@@ -40,6 +40,7 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
 - `npm run test:db:reset` resets the test database.
 - `npm run test:db:seed` seeds deterministic test data.
 - `npm run test:mutation` runs Stryker mutation tests.
+- Set `E2E_SKIP_DB_RESET=1` to skip DB reset/seed in Playwright global setup.
 
 ## Deployment
 
