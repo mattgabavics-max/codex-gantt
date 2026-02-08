@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ShareAccessType {
+  readonly
+  editable
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  projects     Project[]
+  versions     ProjectVersion[] @relation("ProjectVersionCreator")
+
+  @@map("users")
+}
+
+model Project {
+  id         String   @id @default(uuid())
+  name       String
+  ownerId    String   @map("owner_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  isPublic   Boolean  @default(false) @map("is_public")
+  deletedAt  DateTime? @map("deleted_at")
+
+  owner      User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  versions   ProjectVersion[]
+  tasks      Task[]
+  shareLinks ShareLink[]
+
+  @@index([ownerId], map: "projects_owner_id_idx")
+  @@index([ownerId, deletedAt], map: "projects_owner_id_deleted_at_idx")
+  @@map("projects")
+}
+
+model ProjectVersion {
+  id            String   @id @default(uuid())
+  projectId     String   @map("project_id")
+  versionNumber Int      @map("version_number")
+  snapshotData  Json     @map("snapshot_data")
+  createdAt     DateTime @default(now()) @map("created_at")
+  createdBy     String   @map("created_by")
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator       User     @relation("ProjectVersionCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, versionNumber], map: "project_versions_project_id_version_number_key")
+  @@index([projectId], map: "project_versions_project_id_idx")
+  @@index([createdBy], map: "project_versions_created_by_idx")
+  @@map("project_versions")
+}
+
+model Task {
+  id        String   @id @default(uuid())
+  projectId String   @map("project_id")
+  name      String
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  color     String?
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId], map: "tasks_project_id_idx")
+  @@index([projectId, position], map: "tasks_project_id_position_idx")
+  @@map("tasks")
+}
+
+model ShareLink {
+  id         String           @id @default(uuid())
+  projectId  String           @map("project_id")
+  token      String           @unique
+  accessType ShareAccessType  @map("access_type")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  expiresAt  DateTime?        @map("expires_at")
+
+  project    Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId], map: "share_links_project_id_idx")
+  @@index([token], map: "share_links_token_idx")
+  @@map("share_links")
+}
