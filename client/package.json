@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@codex/shared": "workspace:*",
+    "@sentry/react": "^8.55.0",
     "@tanstack/react-query": "^5.90.20",
     "axios": "^1.13.4",
     "react": "^18.2.0",

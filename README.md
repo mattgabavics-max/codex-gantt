@@ -34,3 +34,41 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
 - `npm --workspace server run test` runs API tests.
 - `npm --workspace client run test` runs frontend tests.
 - `npm run test` runs the full suite.
+
+## Deployment
+
+### Frontend (Vercel)
+1. Import the repo in Vercel.
+2. Configure:
+   - Build Command: `pnpm --filter client install --frozen-lockfile=false && pnpm --filter client build`
+   - Output Directory: `client/dist`
+3. Environment variables:
+   - `VITE_API_URL`
+   - `VITE_SENTRY_DSN` (optional)
+4. SPA routing is handled via `vercel.json`.
+
+### Backend (Docker on Render/Railway)
+1. Build using `server/Dockerfile`.
+2. Required environment variables:
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - `ALLOWED_ORIGINS`
+   - `SENTRY_DSN` (optional)
+3. Migration strategy:
+   - Container starts with `prisma generate` and `prisma migrate deploy`.
+4. Health check:
+   - `GET /health`
+
+### CI/CD
+GitHub Actions workflows:
+- `.github/workflows/ci.yml` runs tests and deploys on `main` (production).
+- `.github/workflows/deploy-staging.yml` deploys on `develop` (staging).
+
+Secrets required:
+- `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
+- `RENDER_DEPLOY_HOOK_URL`, `RENDER_STAGING_HOOK_URL`
+
+### Monitoring
+- Client Sentry: `client/src/monitoring/sentry.ts`
+- Server Sentry: `server/src/monitoring/sentry.ts`
+- Set `VITE_SENTRY_DSN` and `SENTRY_DSN` to enable.
