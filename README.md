@@ -37,6 +37,9 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
 - `npm run test:coverage` runs unit/integration tests with coverage.
 - `npm run test:e2e` runs Playwright end-to-end tests.
 - `npm run test:ci` runs coverage and E2E tests (CI parity).
+- `npm run test:db:reset` resets the test database.
+- `npm run test:db:seed` seeds deterministic test data.
+- `npm run test:mutation` runs Stryker mutation tests.
 
 ## Deployment
 

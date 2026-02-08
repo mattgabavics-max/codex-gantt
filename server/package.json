@@ -12,6 +12,7 @@
     "prisma:reset": "prisma migrate reset --force --skip-seed",
     "prisma:studio": "prisma studio",
     "prisma:seed": "prisma db seed",
+    "prisma:seed:test": "tsx prisma/seed-test.ts",
     "prisma:deploy": "prisma migrate deploy",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -16,10 +16,15 @@
     "test": "npm --workspace shared run build && npm --workspace client run test && npm --workspace server run test",
     "test:coverage": "npm --workspace shared run build && npm --workspace client run test:coverage && npm --workspace server run test:coverage",
     "test:e2e": "playwright test",
-    "test:ci": "npm run test:coverage && npm run test:e2e"
+    "test:ci": "npm run test:coverage && npm run test:e2e",
+    "test:db:reset": "npm --workspace server run prisma:reset",
+    "test:db:seed": "npm --workspace server run prisma:seed:test",
+    "test:mutation": "stryker run"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",
-    "@playwright/test": "^1.52.0"
+    "@playwright/test": "^1.52.0",
+    "@stryker-mutator/core": "^8.5.0",
+    "@stryker-mutator/vitest-runner": "^8.5.0"
   }
 }

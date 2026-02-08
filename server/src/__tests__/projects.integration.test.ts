@@ -23,6 +23,11 @@ type VersionRecord = {
 
 const projects = new Map<string, ProjectRecord>();
 const versions: VersionRecord[] = [];
+const userId = "11111111-1111-4111-8111-111111111111";
+
+function makeUuid(index: number) {
+  return `00000000-0000-4000-8000-0000000000${index.toString().padStart(2, "0")}`;
+}
 
 vi.mock("../db", () => {
   return {
@@ -55,7 +60,7 @@ vi.mock("../db", () => {
         create: vi.fn(async ({ data }: any) => {
           const now = new Date();
           const record: ProjectRecord = {
-            id: `project-${projects.size + 1}`,
+            id: makeUuid(projects.size + 1),
             name: data.name,
             ownerId: data.ownerId,
             createdAt: now,
@@ -96,7 +101,7 @@ vi.mock("../db", () => {
         }),
         create: vi.fn(async ({ data }: any) => {
           const record: VersionRecord = {
-            id: `version-${versions.length + 1}`,
+            id: makeUuid(versions.length + 50),
             projectId: data.projectId,
             versionNumber: data.versionNumber,
             snapshotData: data.snapshotData,
@@ -117,7 +122,7 @@ let token: string;
 beforeAll(async () => {
   process.env.JWT_SECRET = "test-secret";
   ({ createApp } = await import("../server"));
-  token = jwt.sign({ id: "user-1", email: "user@example.com" }, "test-secret");
+  token = jwt.sign({ id: userId, email: "user@example.com" }, "test-secret");
 });
 
 beforeEach(() => {
