@@ -29,3 +29,8 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
 ## Authentication
 - `POST /api/auth/register` with `{ "email": "...", "password": "..." }` returns `{ "token": "..." }`.
 - `POST /api/auth/login` with `{ "email": "...", "password": "..." }` returns `{ "token": "..." }`.
+
+## Tests
+- `npm --workspace server run test` runs API tests.
+- `npm --workspace client run test` runs frontend tests.
+- `npm run test` runs the full suite.

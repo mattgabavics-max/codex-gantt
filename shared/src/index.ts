@@ -101,3 +101,38 @@ export type ProjectVersionsResponse = PaginatedResponse<ProjectVersion>;
 export type CreateProjectVersionRequestBody = {
   snapshotData: unknown;
 };
+
+export type CreateTaskRequestBody = {
+  name: string;
+  startDate: string;
+  endDate: string;
+  color?: string | null;
+  position: number;
+};
+
+export type UpdateTaskRequestBody = {
+  name?: string;
+  startDate?: string;
+  endDate?: string;
+  color?: string | null;
+  position?: number;
+};
+
+export type TaskResponse = {
+  task: Task;
+};
+
+export type BulkUpdateTasksRequestBody = {
+  tasks: Array<{
+    id: string;
+    name?: string;
+    startDate?: string;
+    endDate?: string;
+    color?: string | null;
+    position?: number;
+  }>;
+};
+
+export type BulkUpdateTasksResponse = {
+  tasks: Task[];
+};

@@ -4,6 +4,7 @@ import prisma from "./db";
 import type { Task } from "@codex/shared";
 import authRouter from "./routes/auth";
 import projectsRouter from "./routes/projects";
+import tasksRouter from "./routes/tasks";
 import { errorHandler } from "./middleware/error-handler";
 
 export function createApp() {
@@ -14,6 +15,7 @@ export function createApp() {
 
   app.use("/api/auth", authRouter);
   app.use("/api/projects", projectsRouter);
+  app.use("/api", tasksRouter);
 
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
