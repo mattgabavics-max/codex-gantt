@@ -9,6 +9,9 @@ export type VersionHistoryProps = {
   currentTasks: Task[];
 };
 
+/**
+ * Side panel for project version history and comparison.
+ */
 export default function VersionHistory({
   isOpen,
   onClose,

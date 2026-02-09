@@ -7,6 +7,9 @@ import GanttChart from "./GanttChart";
 import { useAuth } from "../state/AuthContext";
 import { useUpdateTask } from "../state/queries";
 
+/**
+ * Render a project from a share link without requiring authentication.
+ */
 export default function SharedProjectView() {
   const { token } = useParams<{ token: string }>();
   const { user } = useAuth();

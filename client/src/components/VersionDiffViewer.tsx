@@ -42,6 +42,9 @@ export type VersionDiffViewerProps = {
   compareTasks: Task[];
 };
 
+/**
+ * Side-by-side diff viewer for task changes between versions.
+ */
 export default function VersionDiffViewer({
   baseTasks,
   compareTasks

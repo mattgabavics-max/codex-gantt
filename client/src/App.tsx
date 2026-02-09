@@ -3,9 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import type { ShareLink, Task } from "@codex/shared";
 import SharedProjectView from "./components/SharedProjectView";
 import ShareModal from "./components/ShareModal";
-import { api } from "./api/api";
-
-const apiBase = import.meta.env.VITE_API_URL ?? "";
+import { api, setAuthToken } from "./api/api";
 
 function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -14,9 +12,15 @@ function Home() {
   const [shareBusy, setShareBusy] = useState(false);
 
   useEffect(() => {
-    fetch(`${apiBase}/api/tasks`)
-      .then((res) => res.json())
-      .then((data: Task[]) => setTasks(data))
+    const token = localStorage.getItem("codex_auth_token");
+    if (!token) {
+      setTasks([]);
+      return;
+    }
+    setAuthToken(token);
+    api
+      .get<Task[]>("/api/tasks")
+      .then((res) => setTasks(res.data))
       .catch(() => setTasks([]));
   }, []);
 

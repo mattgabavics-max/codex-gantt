@@ -7,14 +7,24 @@
     "shared"
   ],
   "scripts": {
+    "predev": "npm --workspace server run prisma:generate",
     "dev": "concurrently \"npm --workspace client run dev\" \"npm --workspace server run dev\"",
     "dev:client": "npm --workspace client run dev",
     "dev:server": "npm --workspace server run dev",
     "build": "npm --workspace shared run build && npm --workspace client run build && npm --workspace server run build",
     "start": "npm --workspace server run start",
-    "test": "npm --workspace shared run build && npm --workspace client run test && npm --workspace server run test"
+    "test": "npm --workspace shared run build && npm --workspace client run test && npm --workspace server run test",
+    "test:coverage": "npm --workspace shared run build && npm --workspace client run test:coverage && npm --workspace server run test:coverage",
+    "test:e2e": "playwright test",
+    "test:ci": "npm run test:coverage && npm run test:e2e",
+    "test:db:reset": "npm --workspace server run prisma:reset",
+    "test:db:seed": "npm --workspace server run prisma:seed:test",
+    "test:mutation": "stryker run"
   },
   "devDependencies": {
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "@playwright/test": "^1.52.0",
+    "@stryker-mutator/core": "^8.5.0",
+    "@stryker-mutator/vitest-runner": "^8.5.0"
   }
 }

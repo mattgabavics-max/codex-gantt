@@ -11,7 +11,7 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
    - `npm install`
 2. Configure environment variables.
    - Copy `server/.env.example` to `server/.env` and update `DATABASE_URL`.
-   - Copy `client/.env.example` to `client/.env` if your API is not on `http://localhost:4000`.
+   - Copy `client/.env.example` to `client/.env` if your API is not on `http://localhost:3001`.
 3. Initialize Prisma.
    - `npm --workspace server run prisma:generate`
    - `npm --workspace server run prisma:migrate -- --name init`
@@ -34,6 +34,13 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
 - `npm --workspace server run test` runs API tests.
 - `npm --workspace client run test` runs frontend tests.
 - `npm run test` runs the full suite.
+- `npm run test:coverage` runs unit/integration tests with coverage.
+- `npm run test:e2e` runs Playwright end-to-end tests.
+- `npm run test:ci` runs coverage and E2E tests (CI parity).
+- `npm run test:db:reset` resets the test database.
+- `npm run test:db:seed` seeds deterministic test data.
+- `npm run test:mutation` runs Stryker mutation tests.
+- Set `E2E_SKIP_DB_RESET=1` to skip DB reset/seed in Playwright global setup.
 
 ## Deployment
 
@@ -43,7 +50,7 @@ This monorepo contains a React + TypeScript frontend, an Express + TypeScript ba
    - Build Command: `pnpm --filter client install --frozen-lockfile=false && pnpm --filter client build`
    - Output Directory: `client/dist`
 3. Environment variables:
-   - `VITE_API_URL`
+- `VITE_API_BASE_URL`
    - `VITE_SENTRY_DSN` (optional)
 4. SPA routing is handled via `vercel.json`.
 
@@ -72,3 +79,12 @@ Secrets required:
 - Client Sentry: `client/src/monitoring/sentry.ts`
 - Server Sentry: `server/src/monitoring/sentry.ts`
 - Set `VITE_SENTRY_DSN` and `SENTRY_DSN` to enable.
+
+## Documentation
+- `USER_MANUAL.md`
+- `SUPPORT_MANUAL.md`
+- `TECHNICAL_DESIGN.md`
+- `API_REFERENCE.md`
+- `ONBOARDING.md`
+- `RUNBOOKS.md`
+- `ADR/README.md`

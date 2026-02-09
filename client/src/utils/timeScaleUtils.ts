@@ -11,18 +11,18 @@ export type TimeHeaderCell = {
 };
 
 function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
 
 function addDays(date: Date, days: number) {
   const next = new Date(date);
-  next.setDate(next.getDate() + days);
+  next.setUTCDate(next.getUTCDate() + days);
   return next;
 }
 
 function addMonths(date: Date, months: number) {
   const next = new Date(date);
-  next.setMonth(next.getMonth() + months);
+  next.setUTCMonth(next.getUTCMonth() + months);
   return next;
 }
 
@@ -34,22 +34,39 @@ function daysBetween(start: Date, end: Date) {
 
 function formatHeader(date: Date, scale: TimeScale) {
   if (scale === "day") {
-    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    return date.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC"
+    });
   }
   if (scale === "week" || scale === "sprint") {
     const end = addDays(date, scale === "week" ? 6 : 13);
     return `${date.toLocaleDateString(undefined, {
       month: "short",
-      day: "numeric"
-    })}–${end.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+      day: "numeric",
+      timeZone: "UTC"
+    })}–${end.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC"
+    })}`;
   }
   if (scale === "month") {
-    return date.toLocaleDateString(undefined, { month: "short", year: "numeric" });
+    return date.toLocaleDateString(undefined, {
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC"
+    });
   }
-  return `${date.toLocaleDateString(undefined, { month: "short" })}–${addMonths(
-    date,
-    2
-  ).toLocaleDateString(undefined, { month: "short", year: "numeric" })}`;
+  return `${date.toLocaleDateString(undefined, {
+    month: "short",
+    timeZone: "UTC"
+  })}–${addMonths(date, 2).toLocaleDateString(undefined, {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC"
+  })}`;
 }
 
 function resolveDayWidth(scale: TimeScale, containerWidth: number, days: number) {
@@ -64,6 +81,9 @@ function resolveDayWidth(scale: TimeScale, containerWidth: number, days: number)
   return Math.min(14, Math.max(min, width));
 }
 
+/**
+ * Generate header cells and day width for the selected time scale.
+ */
 export function generateTimeHeaders(
   startDate: Date,
   endDate: Date,
@@ -128,6 +148,9 @@ export function generateTimeHeaders(
   return { headers, dayWidth };
 }
 
+/**
+ * Translate task dates into pixel offsets within the visible range.
+ */
 export function calculateTaskPosition(
   task: Task,
   scale: TimeScale,
@@ -135,8 +158,8 @@ export function calculateTaskPosition(
   rangeStart: Date,
   rangeEnd: Date
 ): { left: number; width: number } {
-  const start = startOfDay(new Date(`${task.startDate}T00:00:00`));
-  const end = startOfDay(new Date(`${task.endDate}T00:00:00`));
+  const start = startOfDay(new Date(`${task.startDate}T00:00:00Z`));
+  const end = startOfDay(new Date(`${task.endDate}T00:00:00Z`));
   const totalDays = Math.max(1, daysBetween(rangeStart, rangeEnd));
   const dayWidth = resolveDayWidth(scale, containerWidth, totalDays);
   const left = daysBetween(rangeStart, start) * dayWidth;
@@ -144,23 +167,31 @@ export function calculateTaskPosition(
   return { left, width };
 }
 
+/**
+ * Snap a date to the nearest boundary for the given scale.
+ */
 export function snapToGrid(date: Date, scale: TimeScale) {
   const day = startOfDay(date);
   if (scale === "day") return day;
   if (scale === "week") {
-    const diff = day.getDay();
+    const diff = day.getUTCDay();
     return addDays(day, -diff);
   }
   if (scale === "sprint") {
-    const diff = day.getDay();
+    const diff = day.getUTCDay();
     return addDays(day, -diff);
   }
   if (scale === "month") {
-    return new Date(day.getFullYear(), day.getMonth(), 1);
+    return new Date(Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), 1));
   }
-  return new Date(day.getFullYear(), day.getMonth() - (day.getMonth() % 3), 1);
+  return new Date(
+    Date.UTC(day.getUTCFullYear(), day.getUTCMonth() - (day.getUTCMonth() % 3), 1)
+  );
 }
 
+/**
+ * Compute a default date range centered around a given date.
+ */
 export function getVisibleDateRange(scale: TimeScale, centerDate: Date) {
   const center = startOfDay(centerDate);
   if (scale === "day") {

@@ -12,6 +12,9 @@ export type AuthenticatedRequest = Request & {
   user?: AuthenticatedUser;
 };
 
+/**
+ * Require a valid JWT and attach the user payload to the request.
+ */
 export function requireAuth(
   req: AuthenticatedRequest,
   _res: Response,
@@ -38,6 +41,9 @@ export function requireAuth(
   }
 }
 
+/**
+ * Attempt to attach a user from JWT; does not error if missing/invalid.
+ */
 export function optionalAuth(
   req: AuthenticatedRequest,
   _res: Response,

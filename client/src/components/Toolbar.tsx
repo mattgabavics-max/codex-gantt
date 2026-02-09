@@ -7,6 +7,9 @@ export type ToolbarProps = {
   onExport: (format: "png" | "pdf") => void;
 };
 
+/**
+ * Toolbar controls for zoom, view options, and export actions.
+ */
 export default function Toolbar({
   zoomLevel,
   onZoomIn,

@@ -39,7 +39,7 @@ describe("timeScaleUtils", () => {
 
   it("snaps to month boundary", () => {
     const snapped = snapToGrid(new Date("2026-02-17"), "month");
-    expect(snapped.getDate()).toBe(1);
+    expect(snapped.getUTCDate()).toBe(1);
   });
 
   it("returns visible range for quarter", () => {

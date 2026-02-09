@@ -19,6 +19,9 @@ function formatDate(value: string) {
   });
 }
 
+/**
+ * Render a list/grid of projects with search and create actions.
+ */
 export default function ProjectList({
   projects,
   view = "grid",
